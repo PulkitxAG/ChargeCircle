@@ -77,6 +77,7 @@ export async function signUpUser(
         email: cleanEmail,
         password,
         options: {
+          emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/` : 'https://chargecircle-zeta.vercel.app/',
           data: {
             name: profileData.name,
             phone: profileData.phone || '',
