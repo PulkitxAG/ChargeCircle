@@ -574,32 +574,46 @@ export const SitePartnershipsPage: React.FC<SitePartnershipsPageProps> = ({
           MODAL 1: SUBMIT PARTNERSHIP PROPOSAL (FOR EV INVESTORS / CPOS)
       ========================================================================= */}
       {selectedSiteForProposal && (
-        <div className="fixed inset-0 z-50 bg-neutral-950/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-neutral-200 relative my-8">
+        <div 
+          className="fixed inset-0 z-50 bg-neutral-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setSelectedSiteForProposal(null);
+          }}
+        >
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] sm:max-h-[88vh] shadow-2xl border border-neutral-200 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             
-            <button
-              onClick={() => setSelectedSiteForProposal(null)}
-              className="absolute top-5 right-5 p-2 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            {/* Pinned Modal Header */}
+            <div className="p-5 sm:px-8 sm:pt-6 sm:pb-4 border-b border-neutral-100 flex items-start justify-between shrink-0 bg-white">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
+                    Partnership Proposal
+                  </span>
+                  <span className="text-xs text-neutral-400">•</span>
+                  <span className="text-xs font-medium text-neutral-500">{selectedSiteForProposal.city}</span>
+                </div>
+                <h2 className="font-display text-xl sm:text-2xl font-semibold text-neutral-900">
+                  Propose Charger Partnership
+                </h2>
+                <p className="text-xs text-neutral-500 mt-1">
+                  Sending to property owner <strong className="text-neutral-800">{selectedSiteForProposal.propertyOwnerName}</strong> for "{selectedSiteForProposal.title}"
+                </p>
+              </div>
 
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                Partnership Proposal
-              </span>
-              <span className="text-xs text-neutral-400">•</span>
-              <span className="text-xs text-neutral-500">{selectedSiteForProposal.city}</span>
+              <button
+                type="button"
+                onClick={() => setSelectedSiteForProposal(null)}
+                className="p-2 -mr-2 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors shrink-0"
+                title="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            <h2 className="font-display text-2xl font-semibold text-neutral-900">
-              Propose Charger Partnership
-            </h2>
-            <p className="text-xs text-neutral-500 mt-1">
-              Sending to property owner <strong className="text-neutral-800">{selectedSiteForProposal.propertyOwnerName}</strong> for "{selectedSiteForProposal.title}"
-            </p>
-
-            <form onSubmit={handleSubmitProposal} className="mt-6 space-y-4 text-xs">
+            <form onSubmit={handleSubmitProposal} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+              
+              {/* Scrollable Form Body */}
+              <div className="flex-1 overflow-y-auto p-5 sm:p-8 space-y-4 text-xs">
               
               {/* Partner Details */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -791,17 +805,20 @@ export const SitePartnershipsPage: React.FC<SitePartnershipsPageProps> = ({
                 />
               </div>
 
-              <div className="pt-4 flex items-center justify-end gap-3 border-t border-neutral-100">
+              </div>
+
+              {/* Pinned Modal Footer */}
+              <div className="p-4 sm:px-8 sm:py-4 bg-neutral-50 border-t border-neutral-100 flex items-center justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => setSelectedSiteForProposal(null)}
-                  className="px-5 py-2.5 rounded-xl border border-neutral-200 text-neutral-700 hover:bg-neutral-50 font-semibold"
+                  className="px-5 py-2.5 rounded-xl border border-neutral-200 text-neutral-700 hover:bg-neutral-100 font-semibold transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-neutral-900 hover:bg-emerald-700 text-white font-semibold transition-colors flex items-center gap-1.5"
+                  className="px-6 py-2.5 rounded-xl bg-neutral-900 hover:bg-emerald-700 text-white font-semibold transition-colors flex items-center gap-1.5 shadow-xs"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Transmit Partnership Proposal</span>
@@ -818,30 +835,45 @@ export const SitePartnershipsPage: React.FC<SitePartnershipsPageProps> = ({
           MODAL 2: LIST PROPERTY SPACE FOR PARTNERSHIP (FOR PROPERTY OWNERS)
       ========================================================================= */}
       {isListModalOpen && (
-        <div className="fixed inset-0 z-50 bg-neutral-950/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-neutral-200 relative my-8">
+        <div 
+          className="fixed inset-0 z-50 bg-neutral-950/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsListModalOpen(false);
+          }}
+        >
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] sm:max-h-[88vh] shadow-2xl border border-neutral-200 flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             
-            <button
-              onClick={() => setIsListModalOpen(false)}
-              className="absolute top-5 right-5 p-2 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            {/* Pinned Modal Header */}
+            <div className="p-5 sm:px-8 sm:pt-6 sm:pb-4 border-b border-neutral-100 flex items-start justify-between shrink-0 bg-white">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
+                    Property Co-Hosting
+                  </span>
+                </div>
 
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
-                Property Co-Hosting
-              </span>
+                <h2 className="font-display text-xl sm:text-2xl font-semibold text-neutral-900">
+                  List Your Space for an EV Charger Partner
+                </h2>
+                <p className="text-xs text-neutral-500 mt-1">
+                  Have driveway space or parking? EV investors will supply the charger, fund installation, and split charging income with you.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsListModalOpen(false)}
+                className="p-2 -mr-2 rounded-full hover:bg-neutral-100 text-neutral-400 hover:text-neutral-700 transition-colors shrink-0"
+                title="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            <h2 className="font-display text-2xl font-semibold text-neutral-900">
-              List Your Space for an EV Charger Partner
-            </h2>
-            <p className="text-xs text-neutral-500 mt-1">
-              Have driveway space or parking? EV investors will supply the charger, fund installation, and split charging income with you.
-            </p>
-
-            <form onSubmit={handleCreateListing} className="mt-6 space-y-4 text-xs">
+            <form onSubmit={handleCreateListing} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+              
+              {/* Scrollable Form Body */}
+              <div className="flex-1 overflow-y-auto p-5 sm:p-8 space-y-4 text-xs">
               
               {/* Title & Property Type */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1048,17 +1080,20 @@ export const SitePartnershipsPage: React.FC<SitePartnershipsPageProps> = ({
                 />
               </div>
 
-              <div className="pt-4 flex items-center justify-end gap-3 border-t border-neutral-100">
+              </div>
+
+              {/* Pinned Modal Footer */}
+              <div className="p-4 sm:px-8 sm:py-4 bg-neutral-50 border-t border-neutral-100 flex items-center justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => setIsListModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl border border-neutral-200 text-neutral-700 hover:bg-neutral-50 font-semibold"
+                  className="px-5 py-2.5 rounded-xl border border-neutral-200 text-neutral-700 hover:bg-neutral-100 font-semibold transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-neutral-900 hover:bg-emerald-700 text-white font-semibold transition-colors flex items-center gap-1.5"
+                  className="px-6 py-2.5 rounded-xl bg-neutral-900 hover:bg-emerald-700 text-white font-semibold transition-colors flex items-center gap-1.5 shadow-xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Publish Site to Co-Host Marketplace</span>
