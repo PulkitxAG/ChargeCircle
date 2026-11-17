@@ -14,6 +14,7 @@ import {
   getBookings 
 } from './services/storage';
 import { supabase, isSupabaseConfigured } from './services/supabase';
+import { Analytics } from '@vercel/analytics/react';
 
 // Navigation Components
 import { Navbar } from './components/Navbar';
@@ -362,6 +363,9 @@ export function App() {
           defaultTab={authModalTab}
         />
       )}
+
+      {/* Vercel Web Analytics */}
+      <Analytics />
 
     </div>
   );
