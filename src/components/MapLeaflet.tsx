@@ -46,6 +46,11 @@ export const MapLeaflet: React.FC<MapLeafletProps> = ({
     if (!mapContainerRef.current) return;
 
     if (!mapInstanceRef.current) {
+      // Prevent "Map container is already initialized" error
+      if ((mapContainerRef.current as any)._leaflet_id) {
+        delete (mapContainerRef.current as any)._leaflet_id;
+      }
+
       const map = L.map(mapContainerRef.current, {
         center,
         zoom,
@@ -53,7 +58,7 @@ export const MapLeaflet: React.FC<MapLeafletProps> = ({
         attributionControl: false
       });
 
-      // High contrast crisp OpenStreetMap CartoDB Positron / OSM tiles
+      // High contrast crisp OpenStreetMap tiles
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '&copy; OpenStreetMap contributors'
@@ -64,10 +69,11 @@ export const MapLeaflet: React.FC<MapLeafletProps> = ({
 
     const map = mapInstanceRef.current;
 
-    // Invalidate map size so it covers 100% of container smoothly
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 100);
+    // Invalidate map size multiple times to ensure full coverage on all layout changes
+    requestAnimationFrame(() => map.invalidateSize());
+    const t1 = setTimeout(() => map.invalidateSize(), 60);
+    const t2 = setTimeout(() => map.invalidateSize(), 250);
+    const t3 = setTimeout(() => map.invalidateSize(), 600);
 
     // Clear old markers
     Object.values(markersRef.current).forEach(marker => marker.remove());
@@ -169,7 +175,22 @@ export const MapLeaflet: React.FC<MapLeafletProps> = ({
       }
     }
 
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
   }, [chargers, selectedChargerId, center]);
+
+  // Teardown Leaflet instance completely when unmounting
+  useEffect(() => {
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
 
   // Handle ResizeObserver to keep map crisp whenever layout mode changes
   useEffect(() => {
@@ -224,10 +245,17 @@ export const MapLeaflet: React.FC<MapLeafletProps> = ({
   };
 
   return (
-    <div className={`relative isolate rounded-3xl overflow-hidden border border-slate-200 shadow-md ${className}`}>
+    <div 
+      className={`relative isolate rounded-3xl overflow-hidden border border-slate-200 shadow-md ${className}`}
+      style={{ minHeight: '520px', width: '100%', height: '100%' }}
+    >
       
       {/* The Leaflet Canvas */}
-      <div ref={mapContainerRef} className="w-full h-full" />
+      <div 
+        ref={mapContainerRef} 
+        className="w-full h-full absolute inset-0 z-0" 
+        style={{ width: '100%', height: '100%', minHeight: '520px' }}
+      />
 
       {/* Floating Header Badge - Isolated strictly inside map */}
       <div className="absolute top-3 left-3 z-20 flex flex-wrap items-center gap-2 pointer-events-none">

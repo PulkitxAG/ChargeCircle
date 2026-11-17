@@ -529,9 +529,13 @@ export const FindChargersPage: React.FC<FindChargersPageProps> = ({
           The map takes over the entire page with floating bottom station carousel
       ========================================================================= */}
       {layoutMode === 'fullscreen_map' && (
-        <div className="relative w-full flex-1 h-[calc(100vh-125px)] min-h-[650px] overflow-hidden">
+        <div 
+          className="relative w-full flex-1 overflow-hidden"
+          style={{ height: 'calc(100vh - 125px)', minHeight: '650px' }}
+        >
           {/* Edge-to-Edge Map */}
           <MapLeaflet
+            key="map-fullscreen"
             chargers={filteredChargers}
             selectedChargerId={selectedChargerId}
             onSelectCharger={(c) => {
@@ -698,8 +702,9 @@ export const FindChargersPage: React.FC<FindChargersPageProps> = ({
             </div>
 
             {/* Right Map Canvas (8 cols = ~67% width) - COVERS A LARGE DOMINANT PART OF THE PAGE! */}
-            <div className={`lg:col-span-8 xl:col-span-8 h-full ${mobileView === 'list' ? 'hidden lg:block' : 'block'}`}>
+            <div className={`lg:col-span-8 xl:col-span-8 h-full min-h-[500px] ${mobileView === 'list' ? 'hidden lg:block' : 'block'}`}>
               <MapLeaflet
+                key="map-expanded"
                 chargers={filteredChargers}
                 selectedChargerId={selectedChargerId}
                 onSelectCharger={(c) => {
@@ -748,8 +753,9 @@ export const FindChargersPage: React.FC<FindChargersPageProps> = ({
             </div>
 
             {/* 6 Cols Map */}
-            <div className={`lg:col-span-6 h-full ${mobileView === 'list' ? 'hidden lg:block' : 'block'}`}>
+            <div className={`lg:col-span-6 h-full min-h-[500px] ${mobileView === 'list' ? 'hidden lg:block' : 'block'}`}>
               <MapLeaflet
+                key="map-balanced"
                 chargers={filteredChargers}
                 selectedChargerId={selectedChargerId}
                 onSelectCharger={(c) => {
