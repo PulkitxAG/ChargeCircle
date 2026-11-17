@@ -102,7 +102,15 @@ export const logoutUser = (): void => {
 export const initializeStorage = () => {
   getStored(STORAGE_KEYS.CHARGERS, INITIAL_CHARGERS);
   getStored(STORAGE_KEYS.USERS, INITIAL_USERS);
-  getStored(STORAGE_KEYS.CURRENT_USER, GUEST_USER);
+  
+  // Security safeguard: If a user was previously logged into the demo admin account or unauthorized admin, force reset to guest
+  const activeUser = getStored<User>(STORAGE_KEYS.CURRENT_USER, GUEST_USER);
+  if (activeUser && (activeUser.id === 'user_admin_1' || activeUser.email === 'admin@chargecircle.in' || (!isAuthorizedAdmin(activeUser) && activeUser.role === 'admin'))) {
+    setStored(STORAGE_KEYS.CURRENT_USER, GUEST_USER);
+  } else {
+    getStored(STORAGE_KEYS.CURRENT_USER, GUEST_USER);
+  }
+
   getStored(STORAGE_KEYS.BOOKINGS, INITIAL_BOOKINGS);
   getStored(STORAGE_KEYS.OFFERS, INITIAL_BUSINESS_OFFERS);
   getStored(STORAGE_KEYS.INSTALLATIONS, INITIAL_INSTALLATION_REQUESTS);
@@ -139,32 +147,32 @@ export const setCurrentUser = (user: User): void => {
 };
 
 export const ADMIN_EMAILS = [
-  'pulkitagrawal089@gmail.com',
-  'admin@chargecircle.in'
+  'pulkitagrawal089@gmail.com'
 ];
 
 export const isAuthorizedAdmin = (user?: User | null): boolean => {
   if (!user || !user.email) return false;
   const cleanEmail = user.email.toLowerCase().trim();
-  return ADMIN_EMAILS.includes(cleanEmail) || user.id === 'user_admin_1';
+  return cleanEmail === 'pulkitagrawal089@gmail.com';
 };
 
 export const switchUserRole = (role: UserRole): User => {
   const current = getCurrentUser();
 
-  // Security guard: Admin view is strictly restricted to Pulkit / authorized admin emails
+  // Security guard: Admin view is strictly restricted to Pulkit Agrawal
   if (role === 'admin' && !isAuthorizedAdmin(current)) {
     return current;
   }
 
-  const demoIds = ['user_driver_1', 'user_host_1', 'user_admin_1'];
+  const demoIds = ['user_driver_1', 'user_host_1'];
   const isCustomUser = !demoIds.includes(current.id);
 
   if (isCustomUser) {
     // Keep user's email, name, and personal identity intact! Just update their active role
+    const safeRole = role === 'admin' && !isAuthorizedAdmin(current) ? 'driver' : role;
     const updatedUser: User = {
       ...current,
-      role,
+      role: safeRole,
     };
     setCurrentUser(updatedUser);
 
@@ -180,18 +188,12 @@ export const switchUserRole = (role: UserRole): User => {
     return updatedUser;
   }
 
-  // For evaluation demo personas, switch between the pre-seeded demo accounts
+  // For evaluation demo personas, switch ONLY between driver and host demo accounts
   const users = getUsers();
-  let target = users.find(u => u.role === role);
+  const allowedRole = role === 'admin' ? 'driver' : role;
+  let target = users.find(u => u.role === allowedRole && u.id !== 'user_admin_1');
   if (!target) {
-    target = INITIAL_USERS.find(u => u.role === role) || {
-      id: `user_${role}_${Date.now()}`,
-      name: role === 'driver' ? 'Ananya Sen (Driver)' : role === 'host' ? 'Rajesh Kumar (Host)' : 'Priya Sharma (Admin)',
-      email: `${role}@chargecircle.in`,
-      phone: '+91 98000 00000',
-      role,
-      memberSince: '2024'
-    };
+    target = INITIAL_USERS.find(u => u.role === allowedRole) || INITIAL_USERS[0];
   }
   setCurrentUser(target);
   return target;

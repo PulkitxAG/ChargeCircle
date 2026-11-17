@@ -202,41 +202,29 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               1-Click Demo Evaluation Profiles
             </span>
           </div>
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => handleQuickLogin(INITIAL_USERS[0])}
-              className="p-1.5 rounded-xl bg-white border border-emerald-200 text-left hover:border-emerald-500 hover:shadow-xs transition-all"
+              className="p-2 rounded-xl bg-white border border-emerald-200 text-left hover:border-emerald-500 hover:shadow-xs transition-all"
             >
-              <div className="flex items-center gap-1 text-[11px] font-bold text-slate-800">
-                <Car className="w-3 h-3 text-emerald-600" />
-                <span>Driver</span>
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-800">
+                <Car className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Driver Demo</span>
               </div>
-              <div className="text-[10px] text-slate-500 truncate">Ananya Sen</div>
+              <div className="text-[10px] text-slate-500 truncate">Ananya Sen (Driver)</div>
             </button>
 
             <button
               type="button"
               onClick={() => handleQuickLogin(INITIAL_USERS[1])}
-              className="p-1.5 rounded-xl bg-white border border-emerald-200 text-left hover:border-emerald-500 hover:shadow-xs transition-all"
+              className="p-2 rounded-xl bg-white border border-emerald-200 text-left hover:border-emerald-500 hover:shadow-xs transition-all"
             >
-              <div className="flex items-center gap-1 text-[11px] font-bold text-slate-800">
-                <Home className="w-3 h-3 text-emerald-600" />
-                <span>Host</span>
+              <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-800">
+                <Home className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Host Demo</span>
               </div>
-              <div className="text-[10px] text-slate-500 truncate">Rajesh Sharma</div>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleQuickLogin(INITIAL_USERS[2])}
-              className="p-1.5 rounded-xl bg-white border border-emerald-200 text-left hover:border-emerald-500 hover:shadow-xs transition-all"
-            >
-              <div className="flex items-center gap-1 text-[11px] font-bold text-slate-800">
-                <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                <span>Admin</span>
-              </div>
-              <div className="text-[10px] text-slate-500 truncate">Super Admin</div>
+              <div className="text-[10px] text-slate-500 truncate">Rajesh Sharma (Host)</div>
             </button>
           </div>
         </div>

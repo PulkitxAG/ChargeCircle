@@ -33,15 +33,6 @@ export const INITIAL_USERS: User[] = [
     vehicleType: 'two_wheeler',
     vehiclePlateNumber: 'KA 05 EQ 1102',
     memberSince: 'January 2024'
-  },
-  {
-    id: 'user_admin_1',
-    name: 'ChargeCircle Admin',
-    email: 'admin@chargecircle.in',
-    phone: '+91 8000 242 743',
-    role: 'admin',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
-    memberSince: 'October 2023'
   }
 ];
 

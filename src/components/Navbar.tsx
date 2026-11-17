@@ -41,7 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
 
   const isLoggedIn = isUserLoggedIn(currentUser);
-  const isCustomUser = isLoggedIn && !['user_driver_1', 'user_host_1', 'user_admin_1'].includes(currentUser.id);
+  const isCustomUser = isLoggedIn && !['user_driver_1', 'user_host_1'].includes(currentUser.id);
   const canAccessAdmin = isAuthorizedAdmin(currentUser);
 
   const handleLogout = async () => {
