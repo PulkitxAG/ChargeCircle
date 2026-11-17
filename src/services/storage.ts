@@ -101,6 +101,10 @@ export const getUsers = (): User[] => {
   return getStored<User[]>(STORAGE_KEYS.USERS, INITIAL_USERS);
 };
 
+export const saveUsers = (users: User[]): void => {
+  setStored(STORAGE_KEYS.USERS, users);
+};
+
 export const getCurrentUser = (): User => {
   return getStored<User>(STORAGE_KEYS.CURRENT_USER, INITIAL_USERS[0]);
 };

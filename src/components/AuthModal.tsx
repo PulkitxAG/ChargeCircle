@@ -4,17 +4,21 @@ import {
   User as UserIcon, 
   Lock, 
   Mail, 
-  Phone, 
   ShieldCheck, 
   Car, 
   Home, 
   CheckCircle2, 
   Zap, 
-  Sparkles 
+  Sparkles,
+  AlertCircle,
+  Database,
+  Loader2
 } from 'lucide-react';
 import { User, UserRole } from '../types';
 import { INITIAL_USERS } from '../services/mockData';
-import { setCurrentUser, getUsers } from '../services/storage';
+import { setCurrentUser } from '../services/storage';
+import { isSupabaseConfigured } from '../services/supabase';
+import { signInUser, signUpUser } from '../services/authService';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -39,50 +43,66 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [password, setPassword] = useState('');
   const [vehicleModel, setVehicleModel] = useState('');
   const [vehicleType, setVehicleType] = useState<'two_wheeler' | 'four_wheeler'>('four_wheeler');
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Quick Persona Login
+  // Quick Persona Login for Viva / Project Evaluation
   const handleQuickLogin = (targetUser: User) => {
     setCurrentUser(targetUser);
     onSuccess(targetUser);
     onClose();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (activeTab === 'login') {
-      // Find matching or create demo session
-      const existing = getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
-      if (existing) {
-        setCurrentUser(existing);
-        onSuccess(existing);
+    setErrorMessage(null);
+    setIsLoading(true);
+
+    try {
+      if (activeTab === 'login') {
+        const { user, error } = await signInUser(email, password);
+        if (error) {
+          setErrorMessage(error);
+          setIsLoading(false);
+          return;
+        }
+        if (user) {
+          onSuccess(user);
+          onClose();
+        }
       } else {
-        const newUser: User = {
-          id: `user_${Date.now()}`,
-          name: email.split('@')[0] || 'EV Driver',
-          email,
-          phone: phone || '+91 98000 00000',
-          role: 'driver',
-          memberSince: 'Just now'
-        };
-        setCurrentUser(newUser);
-        onSuccess(newUser);
+        if (password.length < 6) {
+          setErrorMessage('Password must be at least 6 characters.');
+          setIsLoading(false);
+          return;
+        }
+
+        const { user, error } = await signUpUser(email, password, {
+          name: name.trim() || 'EV Member',
+          email: email.trim(),
+          phone: phone.trim() || '+91 98000 00000',
+          role,
+          vehicleModel: role === 'driver' ? vehicleModel : undefined,
+          vehicleType: role === 'driver' ? vehicleType : undefined,
+        });
+
+        if (error) {
+          setErrorMessage(error);
+          setIsLoading(false);
+          return;
+        }
+
+        if (user) {
+          onSuccess(user);
+          onClose();
+        }
       }
-    } else {
-      // Sign Up
-      const newUser: User = {
-        id: `user_${Date.now()}`,
-        name: name || 'EV Enthusiast',
-        email,
-        phone: phone || '+91 98000 00000',
-        role,
-        vehicleModel: role === 'driver' ? vehicleModel : undefined,
-        vehicleType: role === 'driver' ? vehicleType : undefined,
-        memberSince: 'Today'
-      };
-      setCurrentUser(newUser);
-      onSuccess(newUser);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'An unexpected authentication error occurred.');
+    } finally {
+      setIsLoading(false);
     }
-    onClose();
   };
 
   return (
@@ -99,11 +119,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <X className="w-4 h-4" />
           </button>
 
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
-              <Zap className="w-4 h-4 fill-emerald-400" />
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400">
+                <Zap className="w-4 h-4 fill-emerald-400" />
+              </div>
+              <span className="text-xs font-bold tracking-widest text-emerald-400 uppercase">ChargeCircle Auth</span>
             </div>
-            <span className="text-xs font-bold tracking-widest text-emerald-400 uppercase">ChargeCircle Auth</span>
+
+            {/* Database Status Badge */}
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-white/10 backdrop-blur-xs border border-white/15">
+              <Database className="w-3 h-3 text-emerald-400" />
+              <span className={isSupabaseConfigured ? "text-emerald-300" : "text-amber-300"}>
+                {isSupabaseConfigured ? "Supabase SQL" : "Local Database"}
+              </span>
+            </div>
           </div>
 
           <h2 className="text-xl font-bold">
@@ -111,15 +141,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </h2>
           <p className="text-xs text-slate-300 mt-1">
             {activeTab === 'login' 
-              ? 'Sign in to manage your charging bookings or host earnings' 
-              : 'Create an account to book chargers or list your EV port'}
+              ? 'Sign in to access your charging bookings, host earnings, and saved bays' 
+              : 'Create a permanent account to book chargers or list your EV port'}
           </p>
 
           {/* Tab Selector */}
           <div className="grid grid-cols-2 p-1 bg-white/10 rounded-xl mt-4 text-xs font-semibold">
             <button
               type="button"
-              onClick={() => setActiveTab('login')}
+              onClick={() => {
+                setActiveTab('login');
+                setErrorMessage(null);
+              }}
               className={`py-1.5 rounded-lg transition-all ${
                 activeTab === 'login' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-300 hover:text-white'
               }`}
@@ -128,7 +161,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('signup')}
+              onClick={() => {
+                setActiveTab('signup');
+                setErrorMessage(null);
+              }}
               className={`py-1.5 rounded-lg transition-all ${
                 activeTab === 'signup' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-300 hover:text-white'
               }`}
@@ -139,10 +175,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         </div>
 
         {/* Quick Persona Switcher for Evaluation */}
-        <div className="p-4 bg-emerald-50/70 border-b border-emerald-100">
-          <div className="text-[11px] font-bold text-emerald-900 uppercase tracking-wider mb-2 flex items-center justify-between">
+        <div className="p-3 bg-emerald-50/70 border-b border-emerald-100">
+          <div className="text-[10px] font-bold text-emerald-900 uppercase tracking-wider mb-1.5 flex items-center justify-between">
             <span className="flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <Sparkles className="w-3 h-3 text-emerald-600" />
               1-Click Demo Evaluation Profiles
             </span>
           </div>
@@ -150,47 +186,55 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               type="button"
               onClick={() => handleQuickLogin(INITIAL_USERS[0])}
-              className="p-2 rounded-xl bg-white border border-emerald-200 text-left hover:border-emerald-500 hover:shadow-sm transition-all"
+              className="p-1.5 rounded-xl bg-white border border-emerald-200 text-left hover:border-emerald-500 hover:shadow-xs transition-all"
             >
               <div className="flex items-center gap-1 text-[11px] font-bold text-slate-800">
                 <Car className="w-3 h-3 text-emerald-600" />
                 <span>Driver</span>
               </div>
-              <div className="text-[10px] text-slate-500 truncate mt-0.5">Ananya Sen</div>
+              <div className="text-[10px] text-slate-500 truncate">Ananya Sen</div>
             </button>
 
             <button
               type="button"
               onClick={() => handleQuickLogin(INITIAL_USERS[1])}
-              className="p-2 rounded-xl bg-white border border-emerald-200 text-left hover:border-emerald-500 hover:shadow-sm transition-all"
+              className="p-1.5 rounded-xl bg-white border border-emerald-200 text-left hover:border-emerald-500 hover:shadow-xs transition-all"
             >
               <div className="flex items-center gap-1 text-[11px] font-bold text-slate-800">
                 <Home className="w-3 h-3 text-emerald-600" />
                 <span>Host</span>
               </div>
-              <div className="text-[10px] text-slate-500 truncate mt-0.5">Rajesh Sharma</div>
+              <div className="text-[10px] text-slate-500 truncate">Rajesh Sharma</div>
             </button>
 
             <button
               type="button"
               onClick={() => handleQuickLogin(INITIAL_USERS[2])}
-              className="p-2 rounded-xl bg-white border border-emerald-200 text-left hover:border-emerald-500 hover:shadow-sm transition-all"
+              className="p-1.5 rounded-xl bg-white border border-emerald-200 text-left hover:border-emerald-500 hover:shadow-xs transition-all"
             >
               <div className="flex items-center gap-1 text-[11px] font-bold text-slate-800">
                 <ShieldCheck className="w-3 h-3 text-emerald-600" />
                 <span>Admin</span>
               </div>
-              <div className="text-[10px] text-slate-500 truncate mt-0.5">Super Admin</div>
+              <div className="text-[10px] text-slate-500 truncate">Super Admin</div>
             </button>
           </div>
         </div>
 
+        {/* Error Banner */}
+        {errorMessage && (
+          <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2 text-xs text-red-700 animate-in fade-in duration-150">
+            <AlertCircle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         {/* Regular Credentials Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-3.5">
           {activeTab === 'signup' && (
             <>
               <div>
-                <label className="text-xs font-semibold text-slate-700 block mb-1">I want to join as</label>
+                <label className="text-xs font-semibold text-slate-700 block mb-1">Account Role</label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     type="button"
@@ -222,13 +266,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <div>
                 <label className="text-xs font-semibold text-slate-700 block mb-1">Full Name</label>
                 <div className="relative">
-                  <UserIcon className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                  <UserIcon className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
                   <input
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Rahul Verma"
+                    placeholder="e.g. Pulkit Agrawal"
                     className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
@@ -262,7 +306,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={vehicleModel}
                     onChange={(e) => setVehicleModel(e.target.value)}
                     placeholder="Vehicle model (e.g. Tata Nexon EV / Ather 450X)"
-                    className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white"
                   />
                 </div>
               )}
@@ -272,7 +316,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div>
             <label className="text-xs font-semibold text-slate-700 block mb-1">Email Address</label>
             <div className="relative">
-              <Mail className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+              <Mail className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
               <input
                 type="email"
                 required
@@ -287,13 +331,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div>
             <label className="text-xs font-semibold text-slate-700 block mb-1">Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+              <Lock className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                minLength={6}
                 className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               />
             </div>
@@ -301,10 +346,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
           <button
             type="submit"
-            className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 mt-2"
+            disabled={isLoading}
+            className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
-            <CheckCircle2 className="w-4 h-4" />
-            <span>{activeTab === 'login' ? 'Sign In to Account' : 'Complete Registration'}</span>
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Processing...</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{activeTab === 'login' ? 'Sign In to Account' : 'Complete Registration'}</span>
+              </>
+            )}
           </button>
         </form>
 
