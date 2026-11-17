@@ -46,6 +46,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
   // Quick Persona Login for Viva / Project Evaluation
   const handleQuickLogin = (targetUser: User) => {
@@ -57,6 +58,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
+    setInfoMessage(null);
     setIsLoading(true);
 
     try {
@@ -78,7 +80,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           return;
         }
 
-        const { user, error } = await signUpUser(email, password, {
+        const { user, error, message } = await signUpUser(email, password, {
           name: name.trim() || 'EV Member',
           email: email.trim(),
           phone: phone.trim() || '+91 98000 00000',
@@ -89,6 +91,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
         if (error) {
           setErrorMessage(error);
+          setIsLoading(false);
+          return;
+        }
+
+        if (message) {
+          setInfoMessage(message);
+          setActiveTab('login');
           setIsLoading(false);
           return;
         }
@@ -220,6 +229,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Success / Verification Info Banner */}
+        {infoMessage && (
+          <div className="mx-6 mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-2 text-xs text-emerald-800 animate-in fade-in duration-150">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600 mt-0.5" />
+            <span>{infoMessage}</span>
+          </div>
+        )}
 
         {/* Error Banner */}
         {errorMessage && (

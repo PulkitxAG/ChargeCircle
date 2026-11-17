@@ -11,8 +11,46 @@ export interface SignUpParams {
   vehicleType?: 'two_wheeler' | 'four_wheeler';
 }
 
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+const BLOCKED_DOMAINS = [
+  'fake.com',
+  'test.com',
+  'example.com',
+  'tempmail.com',
+  'temp-mail.org',
+  'mailinator.com',
+  '10minutemail.com',
+  'guerrillamail.com',
+  'yopmail.com',
+  'trashmail.com',
+  'throwawaymail.com',
+  'dispostable.com',
+  'sharklasers.com',
+  'maildrop.cc',
+];
+
+const BLOCKED_USERNAMES = ['fake', 'test', 'dummy', 'asdf', 'qwerty', 'temp', 'nobody', 'sample'];
+
+function validateEmail(email: string): { valid: boolean; error?: string } {
+  const clean = email.trim().toLowerCase();
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(clean)) {
+    return { valid: false, error: 'Please enter a valid email address (e.g. name@gmail.com).' };
+  }
+
+  const [username, domain] = clean.split('@');
+  if (!username || !domain) {
+    return { valid: false, error: 'Invalid email address.' };
+  }
+
+  if (BLOCKED_DOMAINS.includes(domain) || domain.includes('temp') || domain.includes('dispos')) {
+    return { valid: false, error: `Disposable or temporary email domains (@${domain}) are blocked. Please use your genuine email.` };
+  }
+
+  if (BLOCKED_USERNAMES.includes(username)) {
+    return { valid: false, error: `Placeholder usernames like "${username}" are not allowed. Please enter your real email.` };
+  }
+
+  return { valid: true };
 }
 
 /**
@@ -22,10 +60,11 @@ export async function signUpUser(
   email: string, 
   password: string, 
   profileData: SignUpParams
-): Promise<{ user: User | null; error: string | null }> {
-  const cleanEmail = email.trim();
-  if (!isValidEmail(cleanEmail)) {
-    return { user: null, error: 'Please enter a valid email address (e.g. name@example.com).' };
+): Promise<{ user: User | null; error: string | null; message?: string }> {
+  const cleanEmail = email.trim().toLowerCase();
+  const emailCheck = validateEmail(cleanEmail);
+  if (!emailCheck.valid) {
+    return { user: null, error: emailCheck.error || 'Please enter a valid email address.' };
   }
 
   if (password.length < 6) {
@@ -53,6 +92,15 @@ export async function signUpUser(
       }
 
       if (data.user) {
+        // If Supabase has email confirmation enabled, data.session is null until verified
+        if (!data.session && data.user.identities && data.user.identities.length > 0) {
+          return {
+            user: null,
+            error: null,
+            message: `Verification email sent to ${cleanEmail}! Please open your inbox and click the verification link to activate your account. Unverified or fake emails cannot sign in.`
+          };
+        }
+
         // Construct ChargeCircle user object
         const newUser: User = {
           id: data.user.id,
@@ -120,9 +168,10 @@ export async function signInUser(
   email: string, 
   password: string
 ): Promise<{ user: User | null; error: string | null }> {
-  const cleanEmail = email.trim();
-  if (!isValidEmail(cleanEmail)) {
-    return { user: null, error: 'Please enter a valid email address.' };
+  const cleanEmail = email.trim().toLowerCase();
+  const emailCheck = validateEmail(cleanEmail);
+  if (!emailCheck.valid) {
+    return { user: null, error: emailCheck.error || 'Please enter a valid email address.' };
   }
 
   if (isSupabaseConfigured) {
@@ -133,6 +182,12 @@ export async function signInUser(
       });
 
       if (error) {
+        if (error.message.toLowerCase().includes('email not confirmed')) {
+          return {
+            user: null,
+            error: `Email not confirmed. A verification link was sent to ${cleanEmail}. Please check your inbox and verify your email to log in.`
+          };
+        }
         return { user: null, error: error.message };
       }
 
