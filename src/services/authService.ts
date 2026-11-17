@@ -268,3 +268,33 @@ export async function signOutUser(): Promise<void> {
   }
   logoutUser();
 }
+
+/**
+ * Sign in / Sign up with Google OAuth
+ */
+export async function signInWithGoogle(): Promise<{ error: string | null }> {
+  if (!isSupabaseConfigured) {
+    return { error: 'Please connect Supabase with Vercel first to enable Google OAuth.' };
+  }
+
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+
+    if (error) {
+      return { error: error.message };
+    }
+
+    return { error: null };
+  } catch (err: any) {
+    return { error: err.message || 'Google authentication failed.' };
+  }
+}

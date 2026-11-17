@@ -10,8 +10,10 @@ import {
   subscribeToStorage, 
   getChargers, 
   getCurrentUser, 
+  setCurrentUser as setStoredCurrentUser,
   getBookings 
 } from './services/storage';
+import { supabase, isSupabaseConfigured } from './services/supabase';
 
 // Navigation Components
 import { Navbar } from './components/Navbar';
@@ -55,6 +57,35 @@ export function App() {
       setDataVersion(prev => prev + 1);
     });
     return unsubscribe;
+  }, []);
+
+  // Listen to Supabase OAuth (e.g. Google Sign In) redirects
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user && (event === 'SIGNED_IN' || event === 'USER_UPDATED')) {
+        const u = session.user;
+        const meta = u.user_metadata || {};
+
+        const googleUser: User = {
+          id: u.id,
+          name: meta.full_name || meta.name || u.email?.split('@')[0] || 'EV Member',
+          email: u.email || '',
+          phone: meta.phone || '',
+          role: (meta.role as any) || 'driver',
+          avatar: meta.avatar_url || meta.picture || undefined,
+          memberSince: 'Today',
+        };
+
+        setStoredCurrentUser(googleUser);
+        setCurrentUser(googleUser);
+      }
+    });
+
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
   }, []);
 
   // Routing / View State
