@@ -119,8 +119,25 @@ export const setCurrentUser = (user: User): void => {
   setStored(STORAGE_KEYS.CURRENT_USER, user);
 };
 
+export const ADMIN_EMAILS = [
+  'pulkitagrawal089@gmail.com',
+  'admin@chargecircle.in'
+];
+
+export const isAuthorizedAdmin = (user?: User | null): boolean => {
+  if (!user || !user.email) return false;
+  const cleanEmail = user.email.toLowerCase().trim();
+  return ADMIN_EMAILS.includes(cleanEmail) || user.id === 'user_admin_1';
+};
+
 export const switchUserRole = (role: UserRole): User => {
   const current = getCurrentUser();
+
+  // Security guard: Admin view is strictly restricted to Pulkit / authorized admin emails
+  if (role === 'admin' && !isAuthorizedAdmin(current)) {
+    return current;
+  }
+
   const demoIds = ['user_driver_1', 'user_host_1', 'user_admin_1'];
   const isCustomUser = !demoIds.includes(current.id);
 

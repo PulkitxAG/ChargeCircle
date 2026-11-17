@@ -29,7 +29,8 @@ import {
   updateCommissionRate,
   updateChargerVerification,
   updateInstallationStatus,
-  resetDemoData
+  resetDemoData,
+  isAuthorizedAdmin
 } from '../services/storage';
 
 interface AdminDashboardPageProps {
@@ -43,6 +44,30 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   onNavigate,
   onDataRefresh
 }) => {
+  // Security Guard: Admin View is strictly restricted to Pulkit / authorized admin
+  if (!isAuthorizedAdmin(currentUser)) {
+    return (
+      <div className="min-h-screen bg-[#fafbfc] flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200 shadow-xl text-center space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto">
+            <ShieldCheck className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-bold text-slate-900">Restricted Admin Portal</h2>
+          <p className="text-xs text-slate-500">
+            Admin access is strictly restricted to the platform administrator (<strong className="text-slate-800">pulkitagrawal089@gmail.com</strong>). Your current account ({currentUser.email}) does not have administrative privileges.
+          </p>
+          <button
+            type="button"
+            onClick={() => onNavigate('home')}
+            className="w-full py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs hover:bg-emerald-700 transition-colors"
+          >
+            Return to Marketplace
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const [activeTab, setActiveTab] = useState<'overview' | 'verifications' | 'bookings' | 'installations' | 'settings'>('overview');
   
   // Data layers

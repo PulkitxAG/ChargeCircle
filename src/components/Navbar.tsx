@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { User, UserRole } from '../types';
 import { BRAND_CONFIG } from '../config/brand';
-import { switchUserRole } from '../services/storage';
+import { switchUserRole, isAuthorizedAdmin } from '../services/storage';
 
 interface NavbarProps {
   currentUser: User;
@@ -40,6 +40,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
 
   const isCustomUser = !['user_driver_1', 'user_host_1', 'user_admin_1'].includes(currentUser.id);
+  const canAccessAdmin = isAuthorizedAdmin(currentUser);
 
   const handleRoleSwitch = (newRole: UserRole) => {
     const updated = switchUserRole(newRole);
@@ -134,16 +135,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 Host View
               </button>
-              <button
-                type="button"
-                onClick={() => handleRoleSwitch('admin')}
-                className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
-                  currentUser.role === 'admin' ? 'bg-purple-600 text-white' : 'text-slate-300 hover:text-white'
-                }`}
-                title={isCustomUser ? `Switch ${currentUser.name} to Admin Mode` : 'Switch to Demo Admin Persona'}
-              >
-                Admin View
-              </button>
+              {canAccessAdmin && (
+                <button
+                  type="button"
+                  onClick={() => handleRoleSwitch('admin')}
+                  className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
+                    currentUser.role === 'admin' ? 'bg-purple-600 text-white' : 'text-slate-300 hover:text-white'
+                  }`}
+                  title={isCustomUser ? `Switch ${currentUser.name} to Admin Mode` : 'Switch to Demo Admin Persona'}
+                >
+                  Admin View
+                </button>
+              )}
             </div>
 
             {/* Direct Login / Sign Up Trigger in Top Bar */}
@@ -245,7 +248,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             )}
 
-            {currentUser.role === 'admin' && (
+            {currentUser.role === 'admin' && canAccessAdmin && (
               <button
                 type="button"
                 onClick={() => onNavigate('admin_dashboard')}
@@ -346,17 +349,19 @@ export const Navbar: React.FC<NavbarProps> = ({
                       <Layers className="w-3.5 h-3.5 text-slate-400" />
                       <span>Host Dashboard</span>
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsRoleDropdownOpen(false);
-                        onNavigate('admin_dashboard');
-                      }}
-                      className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-                    >
-                      <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-                      <span>Admin Dashboard</span>
-                    </button>
+                    {canAccessAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsRoleDropdownOpen(false);
+                          onNavigate('admin_dashboard');
+                        }}
+                        className="w-full px-4 py-2 text-left text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                      >
+                        <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Admin Dashboard</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -478,17 +483,19 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Layers className="w-4 h-4 text-amber-600" />
               <span>Host Dashboard</span>
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                onNavigate('admin_dashboard');
-              }}
-              className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 flex items-center gap-2"
-            >
-              <ShieldCheck className="w-4 h-4 text-purple-600" />
-              <span>Admin Dashboard</span>
-            </button>
+            {canAccessAdmin && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onNavigate('admin_dashboard');
+                }}
+                className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 flex items-center gap-2"
+              >
+                <ShieldCheck className="w-4 h-4 text-purple-600" />
+                <span>Admin Dashboard</span>
+              </button>
+            )}
 
             <div className="pt-2 border-t border-slate-100 flex gap-2">
               <button
