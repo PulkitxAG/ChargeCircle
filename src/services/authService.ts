@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import { User, UserRole } from '../types';
-import { setCurrentUser, getUsers, saveUsers } from './storage';
+import { setCurrentUser, getUsers, saveUsers, seedSampleDataForUser } from './storage';
 
 export interface SignUpParams {
   name: string;
@@ -11,6 +11,10 @@ export interface SignUpParams {
   vehicleType?: 'two_wheeler' | 'four_wheeler';
 }
 
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+}
+
 /**
  * Sign up a new user with Email and Password
  */
@@ -19,10 +23,19 @@ export async function signUpUser(
   password: string, 
   profileData: SignUpParams
 ): Promise<{ user: User | null; error: string | null }> {
+  const cleanEmail = email.trim();
+  if (!isValidEmail(cleanEmail)) {
+    return { user: null, error: 'Please enter a valid email address (e.g. name@example.com).' };
+  }
+
+  if (password.length < 6) {
+    return { user: null, error: 'Password must be at least 6 characters long.' };
+  }
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: cleanEmail,
         password,
         options: {
           data: {
@@ -44,7 +57,7 @@ export async function signUpUser(
         const newUser: User = {
           id: data.user.id,
           name: profileData.name,
-          email: data.user.email || email,
+          email: data.user.email || cleanEmail,
           phone: profileData.phone || '',
           role: profileData.role,
           vehicleModel: profileData.vehicleModel,
@@ -57,7 +70,7 @@ export async function signUpUser(
           await supabase.from('profiles').upsert({
             id: data.user.id,
             name: profileData.name,
-            email: data.user.email || email,
+            email: data.user.email || cleanEmail,
             phone: profileData.phone || '',
             role: profileData.role,
             vehicle_model: profileData.vehicleModel || null,
@@ -77,15 +90,15 @@ export async function signUpUser(
   }
 
   // Graceful Local Storage Fallback if Supabase credentials are not yet added
-  const existing = getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
+  const existing = getUsers().find(u => u.email.toLowerCase() === cleanEmail.toLowerCase());
   if (existing) {
-    return { user: null, error: 'User with this email already exists in local database.' };
+    return { user: null, error: `An account with ${cleanEmail} already exists. Please sign in instead.` };
   }
 
   const newUser: User = {
     id: `usr_${Date.now()}`,
     name: profileData.name || 'EV Member',
-    email,
+    email: cleanEmail,
     phone: profileData.phone || '+91 98000 00000',
     role: profileData.role,
     vehicleModel: profileData.vehicleModel,
@@ -107,10 +120,15 @@ export async function signInUser(
   email: string, 
   password: string
 ): Promise<{ user: User | null; error: string | null }> {
+  const cleanEmail = email.trim();
+  if (!isValidEmail(cleanEmail)) {
+    return { user: null, error: 'Please enter a valid email address.' };
+  }
+
   if (isSupabaseConfigured) {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: cleanEmail,
         password,
       });
 
@@ -132,8 +150,8 @@ export async function signInUser(
           if (profile) {
             userProfile = {
               id: profile.id,
-              name: profile.name || data.user.user_metadata?.name || email.split('@')[0],
-              email: profile.email || data.user.email || email,
+              name: profile.name || data.user.user_metadata?.name || cleanEmail.split('@')[0],
+              email: profile.email || data.user.email || cleanEmail,
               phone: profile.phone || data.user.user_metadata?.phone || '',
               role: (profile.role as UserRole) || (data.user.user_metadata?.role as UserRole) || 'driver',
               vehicleModel: profile.vehicle_model || data.user.user_metadata?.vehicle_model,
@@ -150,8 +168,8 @@ export async function signInUser(
           const meta = data.user.user_metadata || {};
           userProfile = {
             id: data.user.id,
-            name: meta.name || email.split('@')[0],
-            email: data.user.email || email,
+            name: meta.name || cleanEmail.split('@')[0],
+            email: data.user.email || cleanEmail,
             phone: meta.phone || '',
             role: (meta.role as UserRole) || 'driver',
             vehicleModel: meta.vehicle_model,
@@ -169,23 +187,17 @@ export async function signInUser(
   }
 
   // Graceful Local Fallback: verify against stored users
-  const existing = getUsers().find(u => u.email.toLowerCase() === email.toLowerCase());
+  const existing = getUsers().find(u => u.email.toLowerCase() === cleanEmail.toLowerCase());
   if (existing) {
     setCurrentUser(existing);
     return { user: existing, error: null };
   }
 
-  // Create quick session if not found in local demo
-  const newUser: User = {
-    id: `usr_${Date.now()}`,
-    name: email.split('@')[0] || 'EV Driver',
-    email,
-    phone: '+91 98000 00000',
-    role: 'driver',
-    memberSince: 'Just now',
+  // Reject unregistered fake emails
+  return { 
+    user: null, 
+    error: `No account found for "${cleanEmail}". Please click "New Account" to register first, or choose a quick demo account below.` 
   };
-  setCurrentUser(newUser);
-  return { user: newUser, error: null };
 }
 
 /**

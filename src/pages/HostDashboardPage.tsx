@@ -36,7 +36,8 @@ import {
   getInstallationRequests,
   getSitePartnerships,
   getPartnershipProposals,
-  updateProposalStatus
+  updateProposalStatus,
+  seedSampleDataForUser
 } from '../services/storage';
 import { VerificationBadgePill } from '../components/VerificationBadgePill';
 
@@ -158,6 +159,39 @@ export const HostDashboardPage: React.FC<HostDashboardPageProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Sample Data Helper Banner for Custom / Fresh Accounts */}
+        {hostChargers.length === 0 && (
+          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+            <div>
+              <p className="text-xs font-bold text-emerald-950">
+                Welcome, {currentUser.name}! You are viewing your personal Host Portal.
+              </p>
+              <p className="text-[11px] text-emerald-700 mt-0.5">
+                Since this is a newly registered account, your listed stations and earnings start at zero. You can list your first charger, or load sample host data to test this dashboard with simulated revenue graphs.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  seedSampleDataForUser(currentUser);
+                  window.location.reload();
+                }}
+                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs whitespace-nowrap shadow-xs"
+              >
+                Load Sample Host Data
+              </button>
+              <button
+                type="button"
+                onClick={() => onNavigate('become_host')}
+                className="px-3 py-1.5 rounded-xl border border-emerald-300 bg-white hover:bg-emerald-50 text-emerald-800 font-bold text-xs whitespace-nowrap"
+              >
+                + List My Charger
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* 4 Metric Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Booking, User, Charger } from '../types';
 import { BRAND_CONFIG } from '../config/brand';
-import { getBookings, cancelBooking } from '../services/storage';
+import { getBookings, cancelBooking, seedSampleDataForUser } from '../services/storage';
 
 interface MyBookingsPageProps {
   currentUser: User;
@@ -92,6 +92,39 @@ export const MyBookingsPage: React.FC<MyBookingsPageProps> = ({
             <span>Book New Station</span>
           </button>
         </div>
+
+        {/* Fresh Account Helper Banner */}
+        {userBookings.length === 0 && (
+          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+            <div>
+              <p className="text-xs font-bold text-emerald-950">
+                Welcome, {currentUser.name}! You are in your personal Driver Portal.
+              </p>
+              <p className="text-[11px] text-emerald-700 mt-0.5">
+                Since this is a fresh account, you have 0 reservations. You can book any station on the live map, or load sample reservations to test the QR pass and charging timers.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  seedSampleDataForUser(currentUser);
+                  window.location.reload();
+                }}
+                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs whitespace-nowrap shadow-xs"
+              >
+                Load Sample Bookings
+              </button>
+              <button
+                type="button"
+                onClick={() => onNavigate('find_chargers')}
+                className="px-3 py-1.5 rounded-xl border border-emerald-300 bg-white hover:bg-emerald-50 text-emerald-800 font-bold text-xs whitespace-nowrap"
+              >
+                Find Chargers
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Tabs Filter */}
         <div className="flex items-center gap-1.5 p-1 bg-white rounded-2xl border border-slate-200 mb-6 max-w-md shadow-xs">

@@ -57,7 +57,13 @@ function getStored<T>(key: string, defaultValue: T): T {
       localStorage.setItem(key, JSON.stringify(defaultValue));
       return defaultValue;
     }
-    return JSON.parse(item);
+    const parsed = JSON.parse(item);
+    // If defaultValue is a non-empty array (e.g. chargers) but parsed array is empty, restore default data
+    if (Array.isArray(defaultValue) && defaultValue.length > 0 && Array.isArray(parsed) && parsed.length === 0) {
+      localStorage.setItem(key, JSON.stringify(defaultValue));
+      return defaultValue;
+    }
+    return parsed;
   } catch (err) {
     console.error(`Error reading ${key} from localStorage:`, err);
     return defaultValue;
@@ -114,13 +120,37 @@ export const setCurrentUser = (user: User): void => {
 };
 
 export const switchUserRole = (role: UserRole): User => {
+  const current = getCurrentUser();
+  const demoIds = ['user_driver_1', 'user_host_1', 'user_admin_1'];
+  const isCustomUser = !demoIds.includes(current.id);
+
+  if (isCustomUser) {
+    // Keep user's email, name, and personal identity intact! Just update their active role
+    const updatedUser: User = {
+      ...current,
+      role,
+    };
+    setCurrentUser(updatedUser);
+
+    // Persist in users list
+    const users = getUsers();
+    const idx = users.findIndex(u => u.id === current.id);
+    if (idx !== -1) {
+      users[idx] = updatedUser;
+      saveUsers(users);
+    } else {
+      saveUsers([...users, updatedUser]);
+    }
+    return updatedUser;
+  }
+
+  // For evaluation demo personas, switch between the pre-seeded demo accounts
   const users = getUsers();
   let target = users.find(u => u.role === role);
   if (!target) {
-    // Fallback template
-    target = {
+    target = INITIAL_USERS.find(u => u.role === role) || {
       id: `user_${role}_${Date.now()}`,
-      name: role === 'driver' ? 'Ananya Sen (Driver)' : role === 'host' ? 'Rajesh Sharma (Host)' : 'Super Admin',
+      name: role === 'driver' ? 'Ananya Sen (Driver)' : role === 'host' ? 'Rajesh Kumar (Host)' : 'Priya Sharma (Admin)',
       email: `${role}@chargecircle.in`,
       phone: '+91 98000 00000',
       role,
@@ -492,4 +522,53 @@ export const resetDemoData = () => {
   localStorage.removeItem(STORAGE_KEYS.PARTNERSHIP_PROPOSALS);
   initializeStorage();
   notifyListeners();
+};
+
+// Seed sample chargers or bookings for a newly registered account
+export const seedSampleDataForUser = (user: User) => {
+  if (user.role === 'host') {
+    const chargers = getChargers();
+    const existingCount = chargers.filter(c => c.hostId === user.id).length;
+    if (existingCount === 0) {
+      const sample1: Charger = {
+        ...INITIAL_CHARGERS[0],
+        id: `ch_${user.id}_1`,
+        hostId: user.id,
+        hostName: user.name,
+        name: `${user.name.split(' ')[0]}'s Fast AC Port (Indiranagar)`,
+        createdAt: new Date().toISOString(),
+      };
+      const sample2: Charger = {
+        ...INITIAL_CHARGERS[1],
+        id: `ch_${user.id}_2`,
+        hostId: user.id,
+        hostName: user.name,
+        name: `${user.name.split(' ')[0]}'s Rapid DC Station`,
+        createdAt: new Date().toISOString(),
+      };
+      setStored(STORAGE_KEYS.CHARGERS, [sample1, sample2, ...chargers]);
+    }
+  } else {
+    const bookings = getBookings();
+    const existingCount = bookings.filter(b => b.driverId === user.id).length;
+    if (existingCount === 0) {
+      const sampleB1: Booking = {
+        ...INITIAL_BOOKINGS[0],
+        id: `bk_${user.id}_1`,
+        driverId: user.id,
+        driverName: user.name,
+        driverPhone: user.phone || '+91 98000 00000',
+        createdAt: new Date().toISOString(),
+      };
+      const sampleB2: Booking = {
+        ...INITIAL_BOOKINGS[1],
+        id: `bk_${user.id}_2`,
+        driverId: user.id,
+        driverName: user.name,
+        driverPhone: user.phone || '+91 98000 00000',
+        createdAt: new Date().toISOString(),
+      };
+      setStored(STORAGE_KEYS.BOOKINGS, [sampleB1, sampleB2, ...bookings]);
+    }
+  }
 };

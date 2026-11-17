@@ -39,6 +39,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);
 
+  const isCustomUser = !['user_driver_1', 'user_host_1', 'user_admin_1'].includes(currentUser.id);
+
   const handleRoleSwitch = (newRole: UserRole) => {
     const updated = switchUserRole(newRole);
     onUserChange(updated);
@@ -96,13 +98,21 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span className="text-slate-300">
-              Active Evaluation Mode: <strong className="text-white">{currentUser.name}</strong> ({currentUser.role.toUpperCase()})
-            </span>
+            {isCustomUser ? (
+              <span className="text-slate-300">
+                Signed In: <strong className="text-white">{currentUser.name}</strong> ({currentUser.email}) · <span className="text-emerald-400 font-bold uppercase">{currentUser.role} Mode</span>
+              </span>
+            ) : (
+              <span className="text-slate-300">
+                Active Evaluation Mode: <strong className="text-white">{currentUser.name}</strong> ({currentUser.role.toUpperCase()})
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-slate-400 hidden sm:inline">Switch Persona:</span>
+            <span className="text-slate-400 hidden sm:inline">
+              {isCustomUser ? 'Switch Mode:' : 'Switch Persona:'}
+            </span>
             <div className="inline-flex rounded-lg bg-slate-800 p-0.5 border border-slate-700">
               <button
                 type="button"
@@ -110,6 +120,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
                   currentUser.role === 'driver' ? 'bg-emerald-600 text-white' : 'text-slate-300 hover:text-white'
                 }`}
+                title={isCustomUser ? `Switch ${currentUser.name} to Driver Mode` : 'Switch to Demo Driver Persona (Ananya)'}
               >
                 Driver View
               </button>
@@ -119,6 +130,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
                   currentUser.role === 'host' ? 'bg-amber-600 text-white' : 'text-slate-300 hover:text-white'
                 }`}
+                title={isCustomUser ? `Switch ${currentUser.name} to Host Mode` : 'Switch to Demo Host Persona (Rajesh)'}
               >
                 Host View
               </button>
@@ -128,6 +140,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className={`px-2 py-0.5 rounded-md text-[10px] font-bold transition-all ${
                   currentUser.role === 'admin' ? 'bg-purple-600 text-white' : 'text-slate-300 hover:text-white'
                 }`}
+                title={isCustomUser ? `Switch ${currentUser.name} to Admin Mode` : 'Switch to Demo Admin Persona'}
               >
                 Admin View
               </button>
@@ -140,7 +153,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-1 transition-all ml-1 shadow-xs"
             >
               <UserIcon className="w-3 h-3" />
-              <span>Login / Sign Up</span>
+              <span>{isCustomUser ? 'Switch / Sign In' : 'Login / Sign Up'}</span>
             </button>
           </div>
         </div>
