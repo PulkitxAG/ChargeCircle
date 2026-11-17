@@ -79,11 +79,30 @@ function setStored<T>(key: string, value: T): void {
   }
 }
 
+export const GUEST_USER: User = {
+  id: 'guest_user',
+  name: 'Guest User',
+  email: '',
+  phone: '',
+  role: 'driver',
+  memberSince: 'Guest',
+  avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'
+};
+
+export const isUserLoggedIn = (user?: User | null): boolean => {
+  if (!user) return false;
+  return Boolean(user.email && user.email.trim().length > 0 && user.id !== 'guest_user');
+};
+
+export const logoutUser = (): void => {
+  setStored(STORAGE_KEYS.CURRENT_USER, GUEST_USER);
+};
+
 // Initialize default storage data if not present
 export const initializeStorage = () => {
   getStored(STORAGE_KEYS.CHARGERS, INITIAL_CHARGERS);
   getStored(STORAGE_KEYS.USERS, INITIAL_USERS);
-  getStored(STORAGE_KEYS.CURRENT_USER, INITIAL_USERS[0]); // Default to Driver Ananya Sen
+  getStored(STORAGE_KEYS.CURRENT_USER, GUEST_USER);
   getStored(STORAGE_KEYS.BOOKINGS, INITIAL_BOOKINGS);
   getStored(STORAGE_KEYS.OFFERS, INITIAL_BUSINESS_OFFERS);
   getStored(STORAGE_KEYS.INSTALLATIONS, INITIAL_INSTALLATION_REQUESTS);
@@ -112,7 +131,7 @@ export const saveUsers = (users: User[]): void => {
 };
 
 export const getCurrentUser = (): User => {
-  return getStored<User>(STORAGE_KEYS.CURRENT_USER, INITIAL_USERS[0]);
+  return getStored<User>(STORAGE_KEYS.CURRENT_USER, GUEST_USER);
 };
 
 export const setCurrentUser = (user: User): void => {

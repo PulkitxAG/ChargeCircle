@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase';
 import { User, UserRole } from '../types';
-import { setCurrentUser, getUsers, saveUsers, seedSampleDataForUser } from './storage';
+import { setCurrentUser, getUsers, saveUsers, seedSampleDataForUser, logoutUser } from './storage';
 
 export interface SignUpParams {
   name: string;
@@ -266,4 +266,5 @@ export async function signOutUser(): Promise<void> {
       console.warn('Supabase sign out error:', e);
     }
   }
+  logoutUser();
 }
