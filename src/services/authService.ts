@@ -71,8 +71,36 @@ export async function signUpUser(
     return { user: null, error: 'Password must be at least 6 characters long.' };
   }
 
+  // 1. Check local users cache
+  const localExisting = getUsers().find(u => u.email && u.email.toLowerCase() === cleanEmail);
+  if (localExisting) {
+    return { 
+      user: null, 
+      error: `An account with email "${cleanEmail}" is already registered. Please sign in instead.` 
+    };
+  }
+
   if (isSupabaseConfigured) {
     try {
+      // 2. Query Supabase database to see if email already exists in profiles
+      try {
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id, email, role')
+          .eq('email', cleanEmail)
+          .maybeSingle();
+
+        if (existingProfile) {
+          return {
+            user: null,
+            error: `An account with email "${cleanEmail}" is already registered as a ${existingProfile.role === 'host' ? 'Host' : 'Driver'}. Please sign in instead.`
+          };
+        }
+      } catch {
+        // Fallthrough if RLS prevents anon lookup
+      }
+
+      // 3. Supabase Auth registration
       const { data, error } = await supabase.auth.signUp({
         email: cleanEmail,
         password,
@@ -89,10 +117,25 @@ export async function signUpUser(
       });
 
       if (error) {
+        const msg = error.message.toLowerCase();
+        if (msg.includes('already registered') || msg.includes('already exists') || msg.includes('user already exists') || error.status === 422) {
+          return { 
+            user: null, 
+            error: `An account with email "${cleanEmail}" is already registered. Please sign in instead.` 
+          };
+        }
         return { user: null, error: error.message };
       }
 
       if (data.user) {
+        // Supabase returns identities: [] when the user is ALREADY registered (anti-enumeration security mechanism)
+        if (data.user.identities && data.user.identities.length === 0) {
+          return {
+            user: null,
+            error: `An account with email "${cleanEmail}" is already registered. Please sign in instead.`
+          };
+        }
+
         // If Supabase has email confirmation enabled, data.session is null until verified
         if (!data.session && data.user.identities && data.user.identities.length > 0) {
           return {
@@ -130,6 +173,12 @@ export async function signUpUser(
           // Table trigger handles this if present
         }
 
+        // Persist in local storage list as well
+        const currentUsers = getUsers();
+        if (!currentUsers.some(u => u.email.toLowerCase() === cleanEmail)) {
+          saveUsers([...currentUsers, newUser]);
+        }
+
         setCurrentUser(newUser);
         return { user: newUser, error: null };
       }
@@ -139,11 +188,6 @@ export async function signUpUser(
   }
 
   // Graceful Local Storage Fallback if Supabase credentials are not yet added
-  const existing = getUsers().find(u => u.email.toLowerCase() === cleanEmail.toLowerCase());
-  if (existing) {
-    return { user: null, error: `An account with ${cleanEmail} already exists. Please sign in instead.` };
-  }
-
   const newUser: User = {
     id: `usr_${Date.now()}`,
     name: profileData.name || 'EV Member',

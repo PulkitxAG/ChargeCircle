@@ -249,7 +249,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {errorMessage && (
               <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2 text-xs text-red-700 animate-in fade-in duration-150">
                 <AlertCircle className="w-3.5 h-3.5 shrink-0 text-red-600 mt-0.5" />
-                <span>{errorMessage}</span>
+                <div className="flex-1">
+                  <span>{errorMessage}</span>
+                  {errorMessage.includes('already registered') && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('login');
+                        setErrorMessage(null);
+                      }}
+                      className="block mt-1 font-bold text-emerald-700 hover:text-emerald-800 underline cursor-pointer text-[11px]"
+                    >
+                      Click here to Sign In with this email →
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 
