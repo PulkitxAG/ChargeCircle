@@ -130,9 +130,22 @@ export async function signUpUser(
       if (data.user) {
         // Supabase returns identities: [] when the user is ALREADY registered (anti-enumeration security mechanism)
         if (data.user.identities && data.user.identities.length === 0) {
+          // Attempt to resend confirmation email in case their account is unconfirmed
+          try {
+            await supabase.auth.resend({
+              type: 'signup',
+              email: cleanEmail,
+              options: {
+                emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/` : 'https://chargecircle-zeta.vercel.app/',
+              }
+            });
+          } catch {
+            // Ignore if email already confirmed
+          }
+
           return {
             user: null,
-            error: 'User already registered. Please sign in instead.'
+            error: 'User already registered. If you haven\'t verified your email yet, a confirmation link has been resent to your inbox. Otherwise, please sign in.'
           };
         }
 
@@ -204,6 +217,31 @@ export async function signUpUser(
   setCurrentUser(newUser);
 
   return { user: newUser, error: null };
+}
+
+/**
+ * Resend verification email for an unconfirmed account
+ */
+export async function resendConfirmationEmail(email: string): Promise<{ success: boolean; error: string | null }> {
+  const cleanEmail = email.trim().toLowerCase();
+  if (isSupabaseConfigured) {
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: cleanEmail,
+        options: {
+          emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/` : 'https://chargecircle-zeta.vercel.app/',
+        }
+      });
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      return { success: true, error: null };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Failed to resend confirmation email.' };
+    }
+  }
+  return { success: true, error: null };
 }
 
 // In-memory OTP session cache for two-factor sign-in confirmation
@@ -319,9 +357,22 @@ export async function signInUser(
 
       if (error) {
         if (error.message.toLowerCase().includes('email not confirmed')) {
+          // Automatically trigger a fresh verification email link
+          try {
+            await supabase.auth.resend({
+              type: 'signup',
+              email: cleanEmail,
+              options: {
+                emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/` : 'https://chargecircle-zeta.vercel.app/',
+              }
+            });
+          } catch {
+            // Non-blocking
+          }
+
           return {
             user: null,
-            error: `Email not confirmed. A verification link was sent to your email. Please check your inbox and verify your email to log in.`
+            error: 'Email not confirmed yet. A fresh verification link has been sent to your email. Please check your inbox (or spam) and click the link to activate your account.'
           };
         }
         return { user: null, error: error.message };

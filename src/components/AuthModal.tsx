@@ -21,7 +21,7 @@ import { User, UserRole } from '../types';
 import { INITIAL_USERS } from '../services/mockData';
 import { setCurrentUser } from '../services/storage';
 import { isSupabaseConfigured } from '../services/supabase';
-import { signInUser, signUpUser, signInWithGoogle, sendSignInOtp, verifySignInOtp } from '../services/authService';
+import { signInUser, signUpUser, signInWithGoogle, sendSignInOtp, verifySignInOtp, resendConfirmationEmail } from '../services/authService';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -86,6 +86,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     if (error) {
       setErrorMessage(error);
       setIsLoading(false);
+    }
+  };
+
+  const handleResendConfirmationLink = async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    const { success, error } = await resendConfirmationEmail(email);
+    setIsLoading(false);
+    if (success) {
+      setInfoMessage('Fresh verification link sent! Please check your email inbox and spam folder.');
+    } else {
+      setErrorMessage(error || 'Failed to resend confirmation email.');
     }
   };
 
@@ -294,7 +306,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <AlertCircle className="w-3.5 h-3.5 shrink-0 text-red-600 mt-0.5" />
                 <div className="flex-1">
                   <span>{errorMessage}</span>
-                  {errorMessage.includes('already registered') && (
+                  {errorMessage.includes('not confirmed') && (
+                    <button
+                      type="button"
+                      onClick={handleResendConfirmationLink}
+                      className="block mt-1 font-bold text-amber-800 hover:text-amber-900 underline cursor-pointer text-[11px]"
+                    >
+                      Resend Verification Link to my email →
+                    </button>
+                  )}
+                  {errorMessage.includes('already registered') && !errorMessage.includes('not confirmed') && (
                     <button
                       type="button"
                       onClick={() => {
