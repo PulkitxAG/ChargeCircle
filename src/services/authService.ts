@@ -76,7 +76,7 @@ export async function signUpUser(
   if (localExisting) {
     return { 
       user: null, 
-      error: `An account with email "${cleanEmail}" is already registered. Please sign in instead.` 
+      error: 'User already registered. Please sign in instead.' 
     };
   }
 
@@ -93,7 +93,7 @@ export async function signUpUser(
         if (existingProfile) {
           return {
             user: null,
-            error: `An account with email "${cleanEmail}" is already registered as a ${existingProfile.role === 'host' ? 'Host' : 'Driver'}. Please sign in instead.`
+            error: 'User already registered. Please sign in instead.'
           };
         }
       } catch {
@@ -121,7 +121,7 @@ export async function signUpUser(
         if (msg.includes('already registered') || msg.includes('already exists') || msg.includes('user already exists') || error.status === 422) {
           return { 
             user: null, 
-            error: `An account with email "${cleanEmail}" is already registered. Please sign in instead.` 
+            error: 'User already registered. Please sign in instead.' 
           };
         }
         return { user: null, error: error.message };
@@ -132,7 +132,7 @@ export async function signUpUser(
         if (data.user.identities && data.user.identities.length === 0) {
           return {
             user: null,
-            error: `An account with email "${cleanEmail}" is already registered. Please sign in instead.`
+            error: 'User already registered. Please sign in instead.'
           };
         }
 

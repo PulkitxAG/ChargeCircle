@@ -260,7 +260,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       }}
                       className="block mt-1 font-bold text-emerald-700 hover:text-emerald-800 underline cursor-pointer text-[11px]"
                     >
-                      Click here to Sign In with this email →
+                      Click here to Sign In →
                     </button>
                   )}
                 </div>

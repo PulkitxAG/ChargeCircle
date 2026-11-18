@@ -54,7 +54,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
           </div>
           <h2 className="text-xl font-bold text-slate-900">Restricted Admin Portal</h2>
           <p className="text-xs text-slate-500">
-            Admin access is strictly restricted to the platform administrator (<strong className="text-slate-800">pulkitagrawal089@gmail.com</strong>). Your current account ({currentUser.email}) does not have administrative privileges.
+            Admin access is strictly restricted to authorized administrators. Your current account does not have administrative privileges.
           </p>
           <button
             type="button"
