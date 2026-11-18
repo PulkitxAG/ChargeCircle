@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Academic reports & presentations (keep local only)
+*.pptx
+*.docx
+PROJECT_REPORT.md
+report_figures/
+generate_*.py
+build_*.py
+
