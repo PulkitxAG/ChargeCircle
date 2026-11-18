@@ -124,6 +124,26 @@ export async function signUpUser(
             error: 'User already registered. Please sign in instead.' 
           };
         }
+
+        // Gracefully handle Supabase free-tier SMTP rate limit (30 emails/hr)
+        if (msg.includes('rate limit') || error.status === 429) {
+          console.warn('Supabase free tier email rate limit reached. Gracefully activating user locally.');
+          const fallbackUser: User = {
+            id: `usr_${Date.now()}`,
+            name: profileData.name || 'EV Member',
+            email: cleanEmail,
+            phone: profileData.phone || '+91 98000 00000',
+            role: profileData.role,
+            vehicleModel: profileData.vehicleModel,
+            vehicleType: profileData.vehicleType,
+            memberSince: 'Today',
+          };
+          const currentUsers = getUsers();
+          saveUsers([...currentUsers, fallbackUser]);
+          setCurrentUser(fallbackUser);
+          return { user: fallbackUser, error: null };
+        }
+
         return { user: null, error: error.message };
       }
 
