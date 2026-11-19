@@ -1,171 +1,216 @@
 # ChargeCircle - Peer-to-Peer EV Charging Marketplace ⚡🇮🇳
 
-A modern, responsive, premium-quality EV charging marketplace website designed specifically for the Indian electric vehicle ecosystem. **ChargeCircle** connects EV owners (two-wheelers and four-wheelers) with verified community hosts at homes, cafes, restaurants, hotels, and commercial hubs.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel%20Production-10b981?style=for-the-badge&logo=vercel)](https://chargecircle-zeta.vercel.app/)
+[![React](https://img.shields.io/badge/React%2019-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript%205-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Database](https://img.shields.io/badge/Supabase-PostgreSQL%2015-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS%203-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+
+A modern, responsive, enterprise-grade peer-to-peer EV charging marketplace designed specifically for India's electric vehicle ecosystem. **ChargeCircle** connects EV drivers (electric 2-wheelers and 4-wheelers) with verified community charging hosts at residential villas, cafes, restaurants, hotels, and commercial hubs.
 
 ---
 
-## 🌟 Live Demo & Quick Start
+## 🌟 Live Production Deployment
 
-The development server is actively running:
-- **Local URL**: [http://localhost:5173/](http://localhost:5173/)
-- **Network URL**: Accessible on your local network on port `5173`
+* 🚀 **Official Production URL**: **[https://chargecircle-zeta.vercel.app/](https://chargecircle-zeta.vercel.app/)**
+* ⚡ **Continuous Deployment (CI/CD)**: Auto-deployed via GitHub Integration on Vercel.
+* 📊 **Live Telemetry & Web Analytics**: Integrated with `@vercel/analytics`.
 
-### Commands
+---
+
+## 💻 Local Quick Start
+
+To run ChargeCircle locally on your computer:
+
 ```bash
-# Install dependencies
+# 1. Clone repository
+git clone https://github.com/PulkitxAG/ChargeCircle.git
+cd ChargeCircle
+
+# 2. Install dependencies
 npm install --legacy-peer-deps
 
-# Start development server
+# 3. Launch local development server
 npm run dev
 
-# Production build
+# 4. Compile production bundle
 npm run build
 ```
+
+The local development server will spin up at `http://localhost:5173/`.
 
 ---
 
 ## 🚀 Key Features & Architectural Highlights
 
-### 1. 🎨 Premium Modern Design & UI/UX
-- **Design Philosophy**: Minimalist, clean EV-tech aesthetic with crisp Inter typography, electric emerald accent (`#10b981`), navy/charcoal typography (`#0f172a`), soft shadows, and card rounding.
-- **Lucide Icons**: 100% SVG Lucide React icons with zero emojis used for UI controls.
-- **Fully Responsive**: Optimized for desktop, tablet, and mobile with a dedicated slide-out mobile drawer and mobile list/map switcher.
-- **Interactive Evaluation Bar**: A persistent top banner that lets evaluators switch personas with 1-click between **Driver** (Ananya Sen), **Host** (Rajesh Sharma), and **Admin** (Super Admin).
+### 1. 🎨 Modern Design & Responsive UI/UX
+* **Clean Tech Aesthetic**: Minimalist layout featuring crisp typography, signature electric emerald accents (`#10b981`), charcoal slate text, soft shadows, and smooth card rounding.
+* **100% SVG Vector Icons**: Powered by `lucide-react` with zero emojis used for interactive UI controls.
+* **Fully Responsive**: Optimized for desktop, tablet, and mobile screens with a responsive slide-out drawer and synchronized mobile map/list switcher.
+* **Role-Based Views**: Seamless persona switching between **EV Driver**, **Charging Host**, and **Admin**.
 
-### 2. 🗺️ Find Chargers (Interactive Discovery)
-- **Split Layout**: Interactive Leaflet + OpenStreetMap canvas on one side, charger cards and filters on the other side.
-- **Functional Filters**:
-  - **City Filter**: Bengaluru, Delhi NCR, Mumbai, Hyderabad, Pune, Chennai
-  - **Vehicle Category**: All EVs, Electric Cars (4W), Electric Two-Wheelers (2W)
-  - **Connector Types**: Type 2 (AC), CCS2 (DC Fast), 15A 3-Pin Domestic Socket, Ather Dot / Grid, Bharat DC001
-  - **Power & Speed**: Rapid DC (≥ 50 kW), Fast AC (7.2 - 22 kW), Standard Socket (3.3 kW)
-  - **Host Property Type**: Home / Villa, Café, Restaurant, Hotel, Commercial Hub
-  - **Pricing Slider**: ₹10/kWh to ₹35/kWh
-  - **Toggles**: Only Available Now, Verified Hosts Only
-- **Sorting**: Nearest first, Lowest price, Highest rated (★ 4.8+), Fastest power (kW).
-- **Synchronized Map & List**: Hovering/clicking a card highlights the map marker pin with custom price badges and opens the interactive popup card with a direct "Book" button.
+### 2. 🗺️ Interactive Geospatial Station Discovery (`/find-chargers`)
+* **Split Layout**: Interactive Leaflet + OpenStreetMap canvas synchronized with real-time station cards.
+* **Multi-Parameter Search & Filters**:
+  * **City**: Bengaluru, Delhi NCR, Mumbai, Hyderabad, Pune, Chennai.
+  * **Vehicle Categories**: All EVs, Electric Cars (4W), Electric Two-Wheelers (2W).
+  * **Connector Types**: Type-2 AC, CCS2 (DC Fast), 15A 3-Pin Domestic Wall Socket, Ather Dot / Grid, Bharat DC001.
+  * **Power Ratings**: Rapid DC ($\ge 50\text{ kW}$), Fast AC ($7.2 - 22\text{ kW}$), Standard Domestic ($3.3\text{ kW}$).
+  * **Property Type**: Residential Villa, Café, Restaurant, Hotel, Commercial Hub.
+  * **Pricing Filter**: Dynamic slider from ₹10/kWh to ₹35/kWh.
+  * **Quick Toggles**: Available Now, Verified Hosts Only.
+* **Smart Sorting**: Nearest First, Lowest Price, Highest Rated ($\star$ 4.8+), and Highest Power (kW).
+* **Synchronized Map Pins**: Hovering/clicking a card highlights the map pin with dynamic price badges and opens the interactive booking card.
 
-### 3. 🔍 Charger Details Page
-- High-resolution photo gallery with thumbnail selector.
-- Complete technical specifications: Power rating (kW), voltage, phase, connector types, operating hours, and parking bay type.
-- **4-Point Safety & Trust Verification Panel**:
-  1. 🛡️ **Host Identity**: Aadhaar / Government ID verified
-  2. 🏠 **Property Authority**: Gated authority / RWA NOC verified
-  3. ⚡ **Electrical Safety & Earthing**: Neutral-to-earth voltage certified < 2V with dedicated MCB
-  4. 🔌 **Compatibility**: Tested with vehicle BMS handshake
-- Host profile card with response time and direct telephone badge.
-- Verified driver reviews with star ratings breakdown and review submission modal.
+### 3. 🛣️ Interstate Highway Corridor Planner
+* **Corridor Route Optimization**: Bengaluru $\leftrightarrow$ Mysuru Expressway ($145\text{ km}$), Delhi NCR $\leftrightarrow$ Jaipur Highway ($270\text{ km}$), Mumbai $\leftrightarrow$ Pune Expressway ($148\text{ km}$), and Hyderabad $\leftrightarrow$ Vijayawada ($275\text{ km}$).
+* **Dynamic Energy & Cost Calculation**:
+  * Evaluates vehicle battery capacity and real-world efficiency (e.g., Tata Nexon EV Max at $7.2\text{ km/kWh}$).
+  * Accurately calculates required pitstops, total energy consumption in kWh, estimated charging cost, and fuel savings compared to petrol (ICE).
 
-### 4. 📅 Complete Booking System & QR Check-in Pass
-- **5-Step Booking Flow**:
-  1. Select Date (Today, Tomorrow, Pick date)
-  2. Select Time Slot with **Double-Booking Prevention** (already booked slots are locked and disabled)
-  3. Select Duration (1 to 4 hours)
-  4. Choose Connector & Vehicle Information (Car vs 2-Wheeler, Model, Registration Plate)
-  5. Transparent Cost Breakdown: Base Energy Cost + Configurable Platform Service Fee (10%) + 18% GST
-- **Payment Gateway Simulation**: Mock Razorpay/UPI QR checkout with celebratory confetti animation (`canvas-confetti`).
-- **Booking Confirmation Pass**: Displays unique Booking Code (e.g. `CC-BKG-8492`), digital SVG QR check-in pass, host contact, driving directions via Google Maps, tax receipt download, and instant slot cancellation option.
-- **Live Charging Simulation**: Evaluators can simulate hardware plug-in, real-time energy dispensing, and session completion!
-- **My Bookings Dashboard**: Filter bookings by Upcoming, Completed, and Cancelled.
+### 4. 💰 Host Yield & Passive Income Calculator
+* **Transparent Unit Economics**: Interactive earnings slider on the homepage demonstrating host gross revenue, 15% platform commission, and projected net monthly earnings.
+* **3 Acquisition Pathways**:
+  * **Option A (`List My Charger`)**: For property owners who already own an EV wallbox.
+  * **Option B (`Request Installation`)**: Turnkey certified electrical contractor dispatch.
+  * **Option C (`Co-Host Space`)**: Capital-free property partnership where investors fund the charger and split profits 50/50.
 
-### 5. 🧮 Charging Cost & Savings Calculator
-- Preset models for popular Indian EVs:
-  - **Four-Wheelers**: Tata Nexon EV Max (40.5 kWh), Tata Punch EV (35 kWh), MG ZS EV (50.3 kWh), Mahindra XUV400 (39.4 kWh), Hyundai Ioniq 5 (72.6 kWh), BYD Atto 3 (60.48 kWh)
-  - **Two-Wheelers**: Ather 450X (3.7 kWh), Ola S1 Pro (4.0 kWh), TVS iQube (3.4 kWh), Bajaj Chetak (3.2 kWh), Simple One (5.0 kWh)
-  - **Custom Pack**: User-entered battery capacity (kWh)
-- Dynamic sliders for Current Battery %, Target Battery % (recommended 80-85%), Station Price per kWh, and Charger Power (3.3 kW to 50 kW).
-- **Mathematical Formulations**:
-  $$\text{Energy Required} = \text{Battery Capacity} \times \frac{\text{Target \%} - \text{Current \%}}{100}$$
-  $$\text{Estimated Cost} = \text{Energy Required} \times \text{Price per kWh}$$
-  $$\text{Charging Time} = \frac{\text{Energy Required}}{\text{Charger Power} \times 0.88}$$
-- **Petrol Comparison**: Demonstrates 70-80% fuel cost savings compared to equivalent petrol mileage.
-- **Engineering Disclaimer**: Details battery charging curve taper above 80%, ambient temperature, and Indian grid voltage fluctuations.
+### 5. 🤝 Property Co-Hosting Marketplace (`/site-partnerships`)
+* **First-in-Segment EV Revenue-Sharing Engine**:
+  * Solves high CAPEX barrier: Property owners with prime commercial/residential parking pair with EV investors who purchase the charging hardware.
+  * **50/50 Transparent Profit Split**: Energy cost and platform fees deducted automatically; net margin split equally between space owner and equipment investor.
+* **Site Listing & Proposal Engine**:
+  * Property hosts list available bays with daily footfall, electrical sanctioned load (kW), and parking photos.
+  * Investors browse listings, analyze ROI projections, and submit formal co-hosting hardware proposals.
 
-### 6. ☕ Charge + Explore (Destination Charging)
-- "Charge Your Vehicle. Enjoy Your Time."
-- Showcase of partner restaurants, artisan cafes, and hotels offering EV charging alongside perks:
-  - Third Wave Coffee (Indiranagar, Bangalore): Free specialty pour-over coffee with 1-hour charge
-  - Burma Burma (DLF Cyber Hub, Gurgaon): 15% off total dining bill with active booking
-  - The Paul Boutique Hotel (Domlur, Bangalore): 20% off Sunday brunch & pool lounge access
-  - Blue Tokai Coffee Roasters (Lower Parel, Mumbai): Complimentary pastry with manual brew
-- Direct "Book Charging Slot" integration from venue cards.
+### 6. 📅 5-Step Booking State Machine & Digital QR Pass
+1. **Date & Slot Selection**: Real-time double-booking lockout prevents overlapping reservations.
+2. **Vehicle Details**: Select connector type, vehicle registration plate, and charge duration (1 to 4 hours).
+3. **Transparent Billing**: Base Energy Rate + 10% Configurable Platform Fee + 18% GST.
+4. **Simulated Payment Gateway**: Instant UPI / Card checkout with celebratory confetti animation.
+5. **Digital QR Pass**: Generates unique Booking Code (e.g. `CC-BKG-8492`), SVG QR pass for physical host check-in, Google Maps navigation link, and downloadable tax invoice.
+6. **Hardware Telemetry Simulator**: Evaluators can simulate plugging in the EV connector, real-time energy dispensing, and completing the charge session.
 
-### 7. 🤝 Become a Host & Partner Installation
-- **Option A: "I Already Have a Charger"**: Full multi-step registration form capturing host contact, property type, charger brand, connector, power, pricing, and operating hours. **Saves to storage with 'Pending Verification' status** (satisfying the safety rule that new submissions are not automatically verified).
-- **Option B: "I Need a Charger Installed"**: Turnkey lead capture for partner installation (property type, meter connection Single Phase / Three Phase, expected vehicle demand, and timeline).
-- **Host Earnings Potential Estimator**: Interactive slider calculating monthly gross and net host payouts.
+### 7. 🧮 Comprehensive EV Cost & Fuel Savings Calculator (`/calculator`)
+* Preset specs for popular Indian EVs:
+  * **4-Wheelers**: Tata Nexon EV Max ($40.5\text{ kWh}$), Tata Punch EV ($35\text{ kWh}$), MG ZS EV ($50.3\text{ kWh}$), Mahindra XUV400, Hyundai Ioniq 5, BYD Atto 3.
+  * **2-Wheelers**: Ather 450X ($3.7\text{ kWh}$), Ola S1 Pro ($4.0\text{ kWh}$), TVS iQube, Bajaj Chetak.
+* Real-time sliders for Current Battery %, Target Battery % (recommended 80%), Tariff per kWh, and Charger Power (3.3 kW to 50 kW).
+* **Mathematical Modeling**:
+  $$\text{Energy Required (kWh)} = \text{Battery Capacity} \times \frac{\text{Target \%} - \text{Current \%}}{100}$$
+  $$\text{Charging Cost (₹)} = \text{Energy Required} \times \text{Tariff (₹/kWh)}$$
+  $$\text{Session Duration (Hours)} = \frac{\text{Energy Required}}{\text{Charger Power (kW)} \times 0.88}$$
+* **Petrol Comparison**: Demonstrates 70% to 80% cost savings over traditional petrol vehicles.
 
-### 8. 📊 Host Dashboard
-- Key metrics: Net Host Payouts, Completed Sessions, Active Stations, and Average Rating.
-- **My Chargers**: Toggle stations Online / Offline, live edit pricing per kWh, and inspect safety audit badges.
-- **Bookings Ledger**: Manage incoming bookings, end active charging sessions, and view driver vehicle plate numbers.
-- **Earnings & Commission**: Transparent breakdown of Gross Billing vs Platform Fee (10%) vs Host Payout (90%), with an instant payout request action (simulating instant UPI IMPS transfer).
-- **Installation Requests**: Track progress of requested chargers.
+### 8. ☕ Charge + Explore (Destination Charging)
+* Destination charging experiences paired with cafes, restaurants, and hotels:
+  * **Third Wave Coffee (Indiranagar, Bengaluru)**: Free pour-over coffee with 1-hour charge.
+  * **Burma Burma (DLF Cyber Hub, Gurugram)**: 15% dining discount with active reservation.
+  * **The Paul Boutique Hotel (Domlur, Bengaluru)**: Sunday brunch & pool lounge access.
+  * **Blue Tokai Coffee Roasters (Lower Parel, Mumbai)**: Complimentary beverage pairing.
 
-### 9. 🛡️ Admin Dashboard
-- Comprehensive metrics: Gross Booking Value, Platform Revenue, Total Chargers, Pending Reviews, Install Leads, and Registered Users.
-- **Charger Verification Queue**: Review submitted chargers and execute actions:
-  - **Approve & Grant Badges**: Grants Identity, Property Authority, Certified Earthing, and Compatibility badges.
-  - **Schedule On-Site Inspection**: Flags listing for technician dispatch.
-  - **Reject / Flag**: Rejects unsafe listings.
-- **All Transactions**: Platform-wide transaction ledger.
-- **Installation Leads Pipeline**: Assign certified partner engineering teams (Tata Power, Statiq, Exicom) to installation requests.
-- **Platform Commission Settings**: Live configurable commission percentage slider (5% to 25%) that immediately recalculates payouts across the platform.
+### 9. 🔐 Authentication & Two-Factor OTP Security
+* **Hybrid Storage Architecture**: Powered by **Supabase PostgreSQL** cloud database with offline fallback for zero-latency viva evaluations.
+* **OAuth 2.0 & OpenID Connect**: 1-click **Continue with Google** with verified identity claims.
+* **Two-Factor OTP Sign-In Confirmation**: Dispatches 6-digit verification code with 30-second resend timer to prevent unauthorized logins.
+* **Duplicate Email & Anti-Enumeration Guard**: Prevents account collisions and unconfirmed ghost signups.
+* **1-Click Evaluation Profiles**: Instant login as Driver (*Ananya Sen*) or Host (*Rajesh Sharma*) without typing credentials.
+
+### 10. 📊 Host & Admin Dashboards
+* **Host Operations Dashboard (`/host-dashboard`)**:
+  * Real-time station telemetry: toggle bays Online/Offline, edit per-kWh tariffs, view live sessions.
+  * Financial ledger: gross earnings, platform commission deductions, and instant UPI IMPS payout requests.
+* **Admin Control Center (`/admin-dashboard`)**:
+  * Hardware verification queue: approve safety audit badges, schedule physical contractor inspections, or reject non-compliant sockets.
+  * Dynamic platform commission slider ($5\% - 25\%$) that updates marketplace fees globally.
+  * **Security Lockout**: Admin panel strictly locked to authorized administrator.
 
 ---
 
-## 🛠️ Tech Stack & Directory Structure
+## 🔒 Safety & Earthing Philosophy for Indian Grid Conditions
 
-- **Framework**: React 19 + TypeScript + Vite 6
-- **Styling**: Tailwind CSS v3 with custom electric green and slate palettes
-- **Icons**: Lucide React
-- **Maps**: Leaflet + OpenStreetMap (with custom HTML charging pin markers and popups)
-- **Effects**: Canvas Confetti for booking confirmations
-- **Storage Layer**: Reactive LocalStorage state service with auto-subscriber pattern and mock Indian dataset
+1. **Certified Neutral-to-Earth Potential**: In India, standard 230V residential connections frequently suffer from floating neutral or high earth resistance, causing EV On-Board Chargers (OBC) to throw red safety trip faults. ChargeCircle certifies host bays only when neutral-to-earth voltage measures $< 2.0\text{V}$.
+2. **Dedicated Protection Switchgear**: 15A wall sockets without dedicated Miniature Circuit Breakers (MCB) and Residual Current Circuit Breakers (RCCB) are never granted verified badges.
+3. **No Automatic Approval**: Newly submitted chargers are placed in **Pending Verification** until approved by platform technicians.
+
+---
+
+## 🛠️ Complete Tech Stack
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend Framework** | React 19 (TypeScript), Vite 6 |
+| **Styling & Design System** | Tailwind CSS v3, PostCSS, Custom Emerald Theme |
+| **Database & Auth** | Supabase (PostgreSQL 15+), Row Level Security (RLS), OAuth 2.0 |
+| **Geospatial & Maps** | Leaflet, OpenStreetMap, Custom HTML Price Pins |
+| **Icons & Media** | Lucide React (100% SVG), Canvas Confetti |
+| **State & Persistence** | Reactive LocalStorage State Machine with Auto-Subscriber Pattern |
+| **Cloud Hosting & CDN** | Vercel Serverless Edge Platform |
+| **Analytics** | Vercel Web Analytics (`@vercel/analytics`) |
+| **Code Quality** | Oxlint (Rust-based high-speed linter), Strict TypeScript |
+
+---
+
+## 📁 Repository Directory Structure
 
 ```
-VoltCircle/
+ChargeCircle/
+├── public/                     # Static high-res assets, EV photos, favicon.svg
 ├── src/
 │   ├── config/
-│   │   └── brand.ts            # Centralized brand configuration & EV presets
+│   │   └── brand.ts            # Centralized brand settings & EV vehicle presets
 │   ├── types/
-│   │   └── index.ts            # TypeScript interfaces (Charger, Booking, User, etc.)
+│   │   └── index.ts            # Strict TypeScript interfaces (Charger, Booking, User)
 │   ├── services/
-│   │   ├── mockData.ts         # Realistic Indian demo dataset
-│   │   └── storage.ts          # Reactive LocalStorage state & business logic
+│   │   ├── mockData.ts         # Realistic Indian EV stations & corridor dataset
+│   │   ├── storage.ts          # Reactive LocalStorage state engine & RBAC guards
+│   │   ├── supabase.ts         # Supabase client configuration & credentials
+│   │   └── authService.ts      # Auth engine, OAuth, 2FA OTP & duplicate prevention
 │   ├── components/
-│   │   ├── Navbar.tsx          # Navigation bar with role switcher & mobile drawer
-│   │   ├── Footer.tsx          # Comprehensive footer with trust & safety guidelines
-│   │   ├── MapLeaflet.tsx      # OpenStreetMap component with custom pin markers
-│   │   ├── ChargerCard.tsx     # Reusable charger card with badges and actions
-│   │   ├── BookingModal.tsx    # Step-by-step booking modal & payment simulation
-│   │   ├── ReviewModal.tsx     # Rating & review submission modal
-│   │   ├── AuthModal.tsx       # Auth modal with 1-click evaluation personas
-│   │   └── VerificationBadgePill.tsx # 4-point verification badge pill
+│   │   ├── Navbar.tsx          # Adaptive header with role switcher & mobile drawer
+│   │   ├── Footer.tsx          # Footer with earthing guidelines & platform links
+│   │   ├── MapLeaflet.tsx      # OpenStreetMap canvas with dynamic marker popups
+│   │   ├── ChargerCard.tsx     # Station listing card with specs, badges, and actions
+│   │   ├── BookingModal.tsx    # 5-step booking state machine & payment simulation
+│   │   ├── ReviewModal.tsx     # Star ratings & driver review submission modal
+│   │   ├── AuthModal.tsx       # Auth modal with 2FA OTP screen & demo profiles
+│   │   └── VerificationBadgePill.tsx # 4-point earthing & identity trust badges
 │   ├── pages/
-│   │   ├── HomePage.tsx        # Hero search, how it works, featured listings
-│   │   ├── FindChargersPage.tsx# Interactive discovery with split map & filters
-│   │   ├── ChargerDetailPage.tsx # Dedicated station page with specs & booking
-│   │   ├── BookingConfirmationPage.tsx # Digital QR pass & session simulation
-│   │   ├── MyBookingsPage.tsx  # Driver bookings dashboard (Upcoming/Completed)
-│   │   ├── CalculatorPage.tsx  # Interactive EV cost & time calculator
-│   │   ├── ChargeExplorePage.tsx # Destination dining & shopping charging
-│   │   ├── BecomeHostPage.tsx  # Option A (List) & Option B (Install) forms
-│   │   ├── HostDashboardPage.tsx # Host station management & payouts
-│   │   ├── AdminDashboardPage.tsx # Verification queue, pipeline & commission
-│   │   └── HowItWorksPage.tsx  # Dual driver/host journey & safety FAQs
-│   ├── App.tsx                 # Main application shell with routing & modals
-│   ├── main.tsx                # Entry point
-│   └── index.css               # Tailwind CSS & custom animations
-├── index.html                  # HTML entry with Inter font & Leaflet CSS
-├── tailwind.config.js          # Tailwind CSS configuration
-└── package.json
+│   │   ├── HomePage.tsx        # Hero, Corridor Planner, Yield Calculator, Fleet
+│   │   ├── FindChargersPage.tsx# Split-view interactive discovery with map & filters
+│   │   ├── ChargerDetailPage.tsx # Hardware specs, safety audit, photo gallery
+│   │   ├── BookingConfirmationPage.tsx # Digital QR pass & live charging simulation
+│   │   ├── MyBookingsPage.tsx  # Driver bookings ledger (Upcoming / Completed)
+│   │   ├── CalculatorPage.tsx  # Dynamic EV energy, time, and petrol comparison
+│   │   ├── SitePartnershipsPage.tsx # 50/50 Co-Hosting matchmaker & proposal modal
+│   │   ├── ChargeExplorePage.tsx # Destination dining & shopping EV charging
+│   │   ├── BecomeHostPage.tsx  # Option A (Self-List) & Option B (Install) forms
+│   │   ├── HostDashboardPage.tsx # Host station management, tariffs & payouts
+│   │   ├── AdminDashboardPage.tsx # KYC verification queue, pipeline & commission
+│   │   └── HowItWorksPage.tsx  # Comprehensive driver & host guides + FAQs
+│   ├── App.tsx                 # Core application shell & OAuth redirect listener
+│   ├── main.tsx                # React DOM entry point
+│   └── index.css               # Tailwind CSS utility layers & custom animations
+├── index.html                  # HTML5 canvas entry with Google Fonts & Leaflet CSS
+├── supabase_schema.sql         # Relational PostgreSQL DDL schema & RLS policies
+├── vercel.json                 # Vercel SPA routing rewrite rules
+├── vite.config.ts              # Vite production compiler & bundler configuration
+├── tailwind.config.js          # Tailwind theme color matrix & responsive breakpoints
+├── tsconfig.json               # Root TypeScript configuration
+└── package.json                # Project dependencies and build scripts
 ```
 
 ---
 
-## 🔒 Safety & Trust Philosophy for Indian Conditions
+## 👨‍💻 Author & Project Credits
 
-1. **Certified Neutral-to-Earth Grounding**: In India, standard 230V residential connections frequently suffer from floating neutral or weak earthing, causing EV on-board chargers (OBC) to throw red safety trip errors. ChargeCircle requires that every host station test neutral-to-earth potential under 2.0V before certification.
-2. **Dedicated Circuit Breaker**: Standard 15A wall sockets without dedicated MCBs and Residual Current Circuit Breakers (RCCB) are never granted the Verified status.
-3. **No Automatic Approval**: Submitting a host form registers the charger in **Pending Verification** status until reviewed by platform technicians.
+* **Developer & Presenter**: **Pulkit Agrawal**
+* **University ID (K ID)**: **K27231**
+* **Institution**: **Career Point University, Kota**
+* **Project Type**: B.Tech Computer Science & Engineering — Capstone Major Project
+
+---
+
+## 📄 License
+
+This project is developed for educational and academic capstone evaluation purposes. Released under the [MIT License](LICENSE).
